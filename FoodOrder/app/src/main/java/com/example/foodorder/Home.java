@@ -25,22 +25,26 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.foodorder.Interface.ItemClickListener;
 import com.example.foodorder.Model.Category;
+import com.example.foodorder.Model.Token;
 import com.example.foodorder.Service.ListenOrder;
 import com.example.foodorder.ViewHolder.MenuViewHolder;
 import com.example.foodorder.common.Common;
 import com.example.foodorder.databinding.ActivityHomeBinding;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingService;
 import com.squareup.picasso.Picasso;
 
 public class Home extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
 
-    FirebaseDatabase database ;
+    FirebaseDatabase database;
     DatabaseReference category;
 
     TextView txtFullName;
@@ -58,17 +62,17 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        
-        Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Menu");
         setSupportActionBar(toolbar);
-        
+
 
 //init Firebase
         database = FirebaseDatabase.getInstance();
         category = database.getReference("Category");
 
-        FloatingActionButton fab = (FloatingActionButton)findViewById(R.id.fab) ;
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -123,19 +127,28 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
 
         if (Common.isConnectedToInternet(this))
             loadMenu();
-        else{
+        else {
             Toast.makeText(this, "Please check your connection !!", Toast.LENGTH_SHORT).show();
             return;
         }
 //        Register Service
 //        Intent service = new Intent(Home.this, ListenOrder.class);
 //        startService(service);
+        updateToken(FirebaseMessaging.getInstance().getToken());
 
+    }
+
+    private void updateToken(Task<String> token) {
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference tokens = db.getReference("Tokens");
+        Token data = new Token(token, false);
+//        false because this token send from client app
+        tokens.child(Common.currentUser.getPhone()).setValue(data);
     }
 
     private void loadMenu() {
 
-        adapter = new FirebaseRecyclerAdapter<Category, MenuViewHolder>(Category.class, R.layout.menu_item,MenuViewHolder.class, category) {
+        adapter = new FirebaseRecyclerAdapter<Category, MenuViewHolder>(Category.class, R.layout.menu_item, MenuViewHolder.class, category) {
             @Override
             protected void populateViewHolder(MenuViewHolder viewHolder, Category model, int position) {
                 viewHolder.txtMenuName.setText(model.getName());
@@ -175,10 +188,10 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         return true;
     }
 
-     @Override
+    @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
-        if(item.getItemId() == R.id.refresh)
+        if (item.getItemId() == R.id.refresh)
             loadMenu();
 
         return super.onOptionsItemSelected(item);
@@ -194,23 +207,23 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }
-//    @SuppressWarnings("StatementWithEmptyBody")
+
+    //    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if ( id == R.id.nav_menu){
+        if (id == R.id.nav_menu) {
 
-        }else if (id == R.id.nav_cart){
+        } else if (id == R.id.nav_cart) {
 
             Intent cartIntent = new Intent(Home.this, Cart.class);
             startActivity(cartIntent);
 
-        }
-        else if (id == R.id.nav_orders){
+        } else if (id == R.id.nav_orders) {
             Intent orderIntent = new Intent(Home.this, OrderStatus.class);
             startActivity(orderIntent);
 
-        }else if (id == R.id.nav_log_out){
+        } else if (id == R.id.nav_log_out) {
             Intent signIn = new Intent(Home.this, SignIn.class);
             signIn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(signIn);
@@ -221,3 +234,4 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         return true;
     }
 }
+    

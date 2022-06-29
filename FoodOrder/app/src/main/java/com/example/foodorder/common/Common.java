@@ -5,9 +5,17 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
 import com.example.foodorder.Model.User;
+import com.example.foodorder.Remote.APIService;
+import com.example.foodorder.Remote.RetrofitClient;
 
 public class Common {
     public static User currentUser;
+    public static final String BASE_URL = "https://fcm.googleapis.com/";
+
+    public static APIService getFCMService(){
+        return RetrofitClient.getClient(BASE_URL).create(APIService.class);
+    }
+
     public static String convertCodeToStatus(String status) {
         if(status.equals("0"))
             return "Placed";
@@ -18,6 +26,8 @@ public class Common {
     }
 
     public static final String DELETE ="Delete";
+    public static final String USER_KEY ="User";
+    public static final String PWD_KEY ="Password";
 
     public static boolean isConnectedToInternet(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(context.CONNECTIVITY_SERVICE);

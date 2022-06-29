@@ -27,9 +27,6 @@ public class ListenOrder extends Service implements ChildEventListener {
 
     FirebaseDatabase db;
     DatabaseReference request;
-
-    private static final String MY_CHANNEL_ID = "com.example.foodorder.Service";
-    private static final String CHANNEL_NAME = "Our Channel";
     public ListenOrder() {
     }
 
@@ -67,9 +64,6 @@ public class ListenOrder extends Service implements ChildEventListener {
     }
 
     private void showNotification(String key, Request request) {
-
-
-
         Intent intent = new Intent(getBaseContext(), OrderStatus.class);
         intent.putExtra("userPhone",request.getPhone());
         @SuppressLint("UnspecifiedImmutableFlag") PendingIntent contentIntent = PendingIntent.getActivity(getBaseContext(),0,intent,PendingIntent.FLAG_UPDATE_CURRENT);

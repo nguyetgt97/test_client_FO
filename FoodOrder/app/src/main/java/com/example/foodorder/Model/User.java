@@ -2,7 +2,7 @@ package com.example.foodorder.Model;
 
 public class User {
     private String Name;
-    private  String Password;
+    private String Password;
     private String Phone;
     private String IsStaff;
 
